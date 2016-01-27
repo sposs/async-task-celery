@@ -125,6 +125,7 @@ STATIC_URL = '/static/'
 
 # CELERY stuff
 BROKER_URL = 'amqp://guest@localhost//'
+CELERY_RESULT_BACKEND = 'redis://'
 
 #: Only add pickle to this list if your broker is secured
 #: from unwanted access (see userguide/security.html)
