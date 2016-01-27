@@ -1,11 +1,8 @@
 from django.http.response import HttpResponseForbidden, HttpResponseServerError
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render_to_response
 from django import forms
 import logging
-
 from django.template.context import RequestContext
-
-from asynctaskcelery.exceptions import InvalidTask
 from asynctaskcelery.models import Task
 from asynctaskcelery.tasks import generic_run
 
@@ -16,6 +13,7 @@ class TaskForm(forms.ModelForm):
     """
     class Meta:
         model = Task
+        fields = ["name", "author", "type"]
 
 
 def register_task(request):
