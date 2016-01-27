@@ -7,6 +7,8 @@ date: 27.01.16
 """
 import json
 from celery.app import shared_task
+from django.shortcuts import get_object_or_404
+
 from asynctaskcelery.exceptions import InvalidTask
 from asynctaskcelery.models import Task
 
@@ -21,10 +23,7 @@ def generic_run(input_data_list, task_id):
     """
     if not isinstance(input_data_list, list):
         input_data_list = [input_data_list]
-
-    task = Task.objects.get(pk=task_id)
-    if not task:
-        raise InvalidTask("Missing task %s" % task_id)
+    task = get_object_or_404(Task, pk=task_id)
     input_data = [json.loads(input_d) for input_d in input_data_list]
 
 

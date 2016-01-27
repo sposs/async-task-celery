@@ -10,6 +10,6 @@ TASKS_CHOICES = (("immediate", _("Immediate")),
 
 # Create your models here.
 class Task(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     author = models.CharField(max_length=20)
     type = models.CharField(max_length=20, choices=TASKS_CHOICES)

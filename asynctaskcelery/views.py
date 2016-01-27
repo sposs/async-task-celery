@@ -1,4 +1,4 @@
-from django.http.response import HttpResponseForbidden, HttpResponseServerError
+from django.http.response import HttpResponseForbidden, HttpResponseServerError, Http404, HttpResponse
 from django.shortcuts import render_to_response
 from django import forms
 import logging
@@ -25,10 +25,10 @@ def register_task(request):
     if request.method == "POST":
         t = TaskForm(request.POST)
         t.save()
+        return HttpResponse("all OK")
     else:
         t = TaskForm()
         return render_to_response("task_form.html", {"task": t}, context_instance=RequestContext(request))
-    return
 
 
 def execute_now(request):
@@ -41,6 +41,8 @@ def execute_now(request):
         try:
             task = generic_run.s(request.POST.get("input_data"), request.POST.get("task_id"))
             return task.get()
+        except Http404:
+            raise
         except Exception as error:
             logging.exception(error)
             return HttpResponseServerError
