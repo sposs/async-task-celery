@@ -41,4 +41,4 @@ class Task(models.Model):
                 l_tasks.append(parent.get_task())
             return chord(l_tasks, generic_run.s(task_name=self.task_name))
         else:
-            return generic_run.si(self.input_data.get_json(), task_name=self.task_name)
+            return generic_run.si([data.get_json() for data in self.input_data], task_name=self.task_name)
