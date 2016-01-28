@@ -7,6 +7,8 @@ date: 27.01.16
 """
 
 from django.conf.urls import url
+
+from asynctaskcelery.scheduler import init_scheduler
 from asynctaskcelery.views import *
 urlpatterns = [
     url(r'^register$', login_required(RegisterTaskView.as_view()), name="register_task"),
@@ -19,3 +21,6 @@ urlpatterns = [
     url(r'^execute/(?P<id>[a-zA-Z0-9]*)', view=execute_now, name="execute_now"),
     url(r'^task_saved$', view=task_saved, name="task_saved"),
 ]
+
+# we need to start the APScheduler so that we can add tasks to it
+init_scheduler()

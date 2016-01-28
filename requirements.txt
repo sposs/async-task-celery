@@ -2,3 +2,4 @@ django
 celery
 redis
 django-annoying
+apscheduler

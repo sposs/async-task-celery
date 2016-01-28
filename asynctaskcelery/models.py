@@ -22,7 +22,6 @@ class Data(models.Model):
 class Task(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
     author = models.CharField(max_length=20)
-    type = models.CharField(max_length=20, choices=TASKS_CHOICES)
     parents = models.ManyToManyField('Task', verbose_name="List of parents, can be one item")
 
     def get_task(self, run_instance):
@@ -51,6 +50,7 @@ class RunInstance(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     due_date = models.DateTimeField(auto_now=True)
     main_task = models.ForeignKey(Task, related_name="run_instances")
+    run_type = models.CharField(max_length=20, choices=TASKS_CHOICES)
 
     def __unicode__(self):
         return "%s run on %s" % (self.task.name, self.due_date)

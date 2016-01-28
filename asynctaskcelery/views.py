@@ -1,3 +1,4 @@
+from apscheduler.triggers.cron import CronTrigger
 from django.contrib.auth.decorators import login_required
 from django.http.response import HttpResponseServerError, Http404, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -8,6 +9,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from asynctaskcelery.models import Task, RunInstance
+from asynctaskcelery.scheduler import scheduler
 
 
 class TaskForm(forms.ModelForm):
@@ -81,6 +83,23 @@ def execute_now(request, id):
     return HttpResponseServerError()
 
 
+def get_and_run(run_instance_id):
+    """
+    from a run instance ID, get and run the tasks
+    :param run_instance_id:
+    :return:
+    """
+    run_i = get_object_or_404(RunInstance, pk=id)
+    task_run = run_i.get_task()
+    res = task_run.apply_async()  # this is where the magic happens
+    try:
+        result = res.get()
+    except Exception as error:
+        logging.exception(error)
+        raise
+    return result
+
+
 @login_required()
 @require_http_methods(["GET"])
 def execute_scheduled(request, id):
@@ -90,7 +109,17 @@ def execute_scheduled(request, id):
     :param id: A task ID
     :return:
     """
-    return
+    try:
+        run_i = get_object_or_404(RunInstance, pk=id)
+        trigger = CronTrigger()
+        scheduler.add_job(get_and_run, trigger, id, id=id, replace_existing=True)
+
+    except Http404:
+        raise
+    except Exception as error:
+        logging.exception(error)
+        return HttpResponseServerError
+    return HttpResponse("Task Scheduled")
 
 
 @require_http_methods(["GET"])
