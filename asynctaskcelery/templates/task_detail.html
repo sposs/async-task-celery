@@ -1,0 +1,16 @@
+{% extends "registration/base.html" %}
+
+{% block content %}
+    <h2>Task {{ object.name }}</h2>
+    <p> Author: {{ object.author }}</p>
+    <p> Parents:</p>
+    <ul>
+      {% if parents %}
+          {% for p in parents %}
+              <li><a href="{% url "view_task" slug=p %}">{{ p }}</a></li>
+          {% endfor %}
+      {% else %}
+          <li>None</li>
+      {% endif %}
+    </ul>
+{%  endblock %}

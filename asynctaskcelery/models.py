@@ -34,3 +34,6 @@ class Task(models.Model):
             return chord(l_tasks, generic_run.s(task_name=self.task_name))
         else:
             return generic_run.si([d.value for d in self.input_data.all()], task_name=self.task_name)
+
+    def __unicode__(self):
+        return "%s" % self.name

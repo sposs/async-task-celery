@@ -1,21 +1,13 @@
-from celery.canvas import chord
-from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import get_urlconf, reverse
-from django.http.response import HttpResponseForbidden, HttpResponseServerError, Http404, HttpResponse, \
-    HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.http.response import HttpResponseServerError, Http404, HttpResponse
+from django.shortcuts import get_object_or_404
 from django import forms
 import logging
-from django.template.context import RequestContext
 from django.views.decorators.http import require_http_methods
-from django.views.generic.base import View
 from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
-
 from asynctaskcelery.models import Task
-from asynctaskcelery.tasks import generic_run
 
 
 class TaskForm(forms.ModelForm):
@@ -24,33 +16,44 @@ class TaskForm(forms.ModelForm):
     """
     class Meta:
         model = Task
-        fields = ["name", "author", "type"]
+        fields = ["name", "author", "type", "parents"]
 
 
-class RegisterTaskView(View):
+class RegisterTaskView(CreateView):
     form_class = TaskForm
+    template_name = "task_form.html"
+    success_url = "/tasks/"
 
-    def get(self, request, *args, **kwargs):
-        return render_to_response("task_form.html", {"task": self.form_class()},
-                                  context_instance=RequestContext(request))
 
-    def post(self, request, *args, **kwargs):
-        t = TaskForm(request.POST)
-        if t.is_valid():
-            t.save()
-            return HttpResponseRedirect(reverse("task_saved"))
-        else:
-            return render_to_response("task_form.html", {"task": t},
-                                      context_instance=RequestContext(request))
+class ViewTask(DetailView):
+    model = Task
+    slug_field = "name"
+    template_name = "task_detail.html"
+
+    def get_context_data(self, **kwargs):
+        ctx_data = super(ViewTask, self).get_context_data()
+        ctx_data["parents"] = []
+        parents = self.object.parents.all()
+        if parents:
+            ctx_data["parents"] = [p.name for p in parents]
+        return ctx_data
 
 
 class ViewTasksView(ListView):
     model = Task
 
 
-class ChangeTaskView(DetailView):
-    slug_field = "name"
+class ChangeTaskView(UpdateView):
+    form_class = TaskForm
     model = Task
+    template_name = "change_task.html"
+    success_url = "/tasks/"
+    slug_field = "name"
+
+    def get_context_data(self, **kwargs):
+        ctx_data = super(ChangeTaskView, self).get_context_data(**kwargs)
+        ctx_data["task_name"] = self.object.name
+        return ctx_data
 
 
 @login_required()

@@ -4,7 +4,7 @@
 <h2>Create task</h2>
 <form action="{% url "register_task" %}" method="post">
     {% csrf_token %}
-    {{ task.as_p }}
+    {{ form.as_p }}
     <input type="submit" value="Submit" />
 </form>
 {% endblock %}
