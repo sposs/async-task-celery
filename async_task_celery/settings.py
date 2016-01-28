@@ -133,4 +133,4 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
 
-LOGIN_REDIRECT_URL = '/tasks/view_tasks'
+LOGIN_REDIRECT_URL = '/tasks'
