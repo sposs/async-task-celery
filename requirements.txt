@@ -1,3 +1,4 @@
 django
 celery
 redis
+django-annoying

@@ -18,5 +18,6 @@ from django.contrib import admin
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^tasks/', include('asynctaskcelery.urls'))
+    url(r'^', include('django.contrib.auth.urls')),
+    url(r'^tasks/', include('asynctaskcelery.urls')),
 ]

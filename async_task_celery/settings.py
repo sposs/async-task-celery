@@ -52,7 +52,6 @@ MIDDLEWARE_CLASSES = [
 ]
 
 ROOT_URLCONF = 'async_task_celery.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -133,3 +132,5 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
+
+LOGIN_REDIRECT_URL = '/tasks/view_tasks'
