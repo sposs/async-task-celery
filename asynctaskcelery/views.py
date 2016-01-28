@@ -67,7 +67,6 @@ def execute_now(request, id):
     try:
         run_i = get_object_or_404(RunInstance, pk=id)
         task_run = run_i.get_task()
-        # return HttpResponse("%s" % str(task_run))
         res = task_run.apply_async()  # this is where the magic happens
         try:
             result = res.get()

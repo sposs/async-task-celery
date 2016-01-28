@@ -1,5 +1,6 @@
 import json
 from django.test import TestCase
+import logging
 
 # Create your tests here.
 from asynctaskcelery.models import Task, Data, RunInstance

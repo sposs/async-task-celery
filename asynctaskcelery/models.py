@@ -3,10 +3,9 @@ from __future__ import unicode_literals
 from celery.canvas import chord
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-import logging
-
 from asynctaskcelery.tasks import generic_run
 from annoying.fields import JSONField
+import logging
 
 TASKS_CHOICES = (("immediate", _("Immediate")),
                  ("scheduled", _("Scheduled")))
