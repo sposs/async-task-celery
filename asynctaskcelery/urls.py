@@ -16,5 +16,6 @@ urlpatterns = [
         name="change_task"),
     url(r'^view/(?P<slug>[-\w]*)$', view=login_required(ViewTask.as_view()),
         name="view_task"),
+    url(r'^execute/(?P<id>[a-zA-Z0-9]*)', view=execute_now, name="execute_now"),
     url(r'^task_saved$', view=task_saved, name="task_saved"),
 ]

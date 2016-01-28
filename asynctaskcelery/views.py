@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
-from asynctaskcelery.models import Task
+from asynctaskcelery.models import Task, RunInstance
 
 
 class TaskForm(forms.ModelForm):
@@ -57,18 +57,24 @@ class ChangeTaskView(UpdateView):
 
 
 @login_required()
-@require_http_methods(["POST"])
-def execute_now(request):
+@require_http_methods(["GET", "POST"])
+def execute_now(request, id):
     """
     Execute the task now
     :param request:
     :return:
     """
     try:
-        task = get_object_or_404(Task, name=request.POST.get("task_name"))
-        task_run = task.get_task()
+        run_i = get_object_or_404(RunInstance, pk=id)
+        task_run = run_i.get_task()
+        # return HttpResponse("%s" % str(task_run))
         res = task_run.apply_async()  # this is where the magic happens
-        return res.get()
+        try:
+            result = res.get()
+        except Exception as error:
+            logging.exception(error)
+            return HttpResponseServerError
+        return HttpResponse(result)
     except Http404:
         raise
     except Exception as error:
@@ -78,10 +84,11 @@ def execute_now(request):
 
 @login_required()
 @require_http_methods(["GET"])
-def execute_scheduled(request):
+def execute_scheduled(request, id):
     """
     Use APScheduler to execute later
     :param request:
+    :param id: A task ID
     :return:
     """
     return
