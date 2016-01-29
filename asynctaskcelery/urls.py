@@ -12,6 +12,7 @@ from asynctaskcelery.scheduler import init_scheduler
 from asynctaskcelery.views import *
 urlpatterns = [
     url(r'^register$', login_required(RegisterTaskView.as_view()), name="register_task"),
+    url(r'^register_ri$', login_required(RegisterRunInstance.as_view()), name="register_run_instance"),
     url(r'^$', view=login_required(ViewTasksView.as_view(template_name="view_tasks.html")),
         name="view_tasks"),
     url(r'^change/(?P<slug>[-\w]*)$', view=login_required(ChangeTaskView.as_view()),

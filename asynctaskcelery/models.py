@@ -7,12 +7,11 @@ from asynctaskcelery.tasks import generic_run
 from annoying.fields import JSONField
 import logging
 
-TASKS_CHOICES = (("immediate", _("Immediate")),
-                 ("scheduled", _("Scheduled")))
+
 
 
 class Data(models.Model):
-    #value = JSONField(blank=True, null=True)
+    # value = JSONField(blank=True, null=True)
     value = models.CharField(max_length=255, null=True)
 
     run_instance = models.ForeignKey("RunInstance", on_delete=models.CASCADE, related_name="data", null=True)
@@ -21,8 +20,8 @@ class Data(models.Model):
 
 class Task(models.Model):
     name = models.CharField(max_length=50, primary_key=True)
-    author = models.CharField(max_length=20)
-    parents = models.ManyToManyField('Task', verbose_name="List of parents, can be one item")
+    author = models.CharField(max_length=20, blank=True)
+    parents = models.ManyToManyField('Task', verbose_name="List of parents, can be one item", blank=True)
 
     def get_task(self, run_instance):
         """
@@ -45,12 +44,34 @@ class Task(models.Model):
 
 
 class RunInstance(models.Model):
+    PAUSED = "paused"
+    RUNNING = "running"
+    SCHEDULED = "scheduled"
+    DONE = "done"
+    FAILED = "failed"
+    RUN_INSTANCE_STATES = ((PAUSED, _("Paused")),
+                           (SCHEDULED, _("Scheduled")),
+                           (RUNNING, _("Running")),
+                           (DONE, _("Done")),
+                           (FAILED, _("Failed")),
+                           )
+    IMMEDIATE = "immediate"
+    TASKS_CHOICES = ((IMMEDIATE, _("Immediate")),
+                     (SCHEDULED, _("Scheduled"))
+                     )
     tasks = models.ManyToManyField(Task, verbose_name="List of tasks")
-    initiator = models.CharField(max_length=50)
+    initiator = models.CharField(max_length=50, blank=True, null=True)
     create_date = models.DateTimeField(auto_now_add=True)
-    due_date = models.DateTimeField(auto_now=True)
+    due_date = models.DateTimeField(blank=True, null=True)
+    start_at = models.DateTimeField(blank=True, null=True)
+    finished_at = models.DateTimeField(blank=True, null=True)
+    last_update = models.DateTimeField(auto_now=True)
     main_task = models.ForeignKey(Task, related_name="run_instances")
-    run_type = models.CharField(max_length=20, choices=TASKS_CHOICES)
+    run_type = models.CharField(max_length=20, choices=TASKS_CHOICES, default=IMMEDIATE)
+    max_wait_time = models.FloatField(verbose_name="Maximum waiting time for completion", default=100.,
+                                      help_text="In seconds")
+    state = models.CharField(max_length=20, choices=RUN_INSTANCE_STATES, default=PAUSED)
+    state_message = models.TextField(null=True, blank=True)
 
     def __unicode__(self):
         return "%s run on %s" % (self.task.name, self.due_date)
